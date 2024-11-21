@@ -59,8 +59,8 @@ todo:
 
 storageClass:
   # storageclass.yaml
-  name: azure-disk-sc
-  provisioner: disk.csi.azure.com
+  name: aws-disk-sc
+  provisioner: ebs.csi.aws.com
   storageAccountType: Standard_LRS
   kind: Managed
   reclaimPolicy: Retain
