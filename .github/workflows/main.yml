@@ -1,4 +1,4 @@
-name: Deploy Todo App to AKS via ArgoCD
+name: Update values.yaml for Postgres and Todo App
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  update-values:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,11 +22,23 @@ jobs:
     - name: Update values.yaml file and commit if necessary
       run: |
         cd todo-app-chart
-        sed -i 's/replicas: .*/replicas: 2/' values.yaml  # Modify replica count
+        
+        # Update Postgres settings
+        sed -i 's/replicas: .*/replicas: 1/' values.yaml  # Update Postgres replicas
+        sed -i 's|image: daviddocker526/postgres:latest|image: daviddocker526/postgres:latest|' values.yaml  # Ensure correct Postgres image
+        
+        # Update Todo App settings
+        sed -i 's/replicas: .*/replicas: 1/' values.yaml  # Update Todo App replicas
+        sed -i 's|image: daviddocker526/todo_app_web:latest|image: daviddocker526/todo_app_web:latest|' values.yaml  # Ensure correct Todo App image
+
+        # Update Storage Class settings
+        sed -i 's|name: azure-disk-sc|name: azure-disk-sc|' values.yaml  # Ensure storage class is correctly configured
+        
+        # Check if there are any changes and commit if necessary
         git diff --exit-code values.yaml || ( \
           git config --global user.name 'GitHub Actions' && \
           git config --global user.email 'actions@github.com' && \
           git add -A && \
-          git commit -m "Update values.yaml" && \
+          git commit -m "Update values.yaml for Postgres and Todo app" && \
           git push \
         )
