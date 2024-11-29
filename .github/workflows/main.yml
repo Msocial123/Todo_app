@@ -22,7 +22,7 @@ jobs:
     - name: Update values.yaml file and commit if necessary
       run: |
         cd todo-app-chart
-        sed -i 's/replicas: .*/replicas: 3/' values.yaml  # Modify replica count
+        sed -i 's/replicas: .*/replicas: 2/' values.yaml  # Modify replica count
         git diff --exit-code values.yaml || ( \
           git config --global user.name 'GitHub Actions' && \
           git config --global user.email 'actions@github.com' && \
