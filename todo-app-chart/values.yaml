@@ -34,7 +34,7 @@ postgres:
 
 todo:
   # todo-deployment.yaml
-  deploymentName: david-deployment
+  deploymentName: todo-deployment
   appLabel: todo-app
   replicas: 2
   containerName: todo-app
