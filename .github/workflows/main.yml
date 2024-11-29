@@ -1,4 +1,4 @@
-name: Deploy Todo App to AKS via ArgoCD
+name: Update Helm Chart for ArgoCD
 
 on:
   push:
@@ -7,46 +7,21 @@ on:
   workflow_dispatch: # Allow manual triggering
 
 jobs:
-  deploy:
+  update-helm-chart:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Check out the repository
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Step 1: Checkout the Repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # Step 2: Set up kubectl
-    - name: Set up kubectl
-      run: |
-        echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > kubeconfig
-        export KUBECONFIG=kubeconfig
-
-    # Step 3: Install ArgoCD CLI
-    - name: Install ArgoCD CLI
-      run: |
-        curl -sSL https://github.com/argoproj/argo-cd/releases/download/v2.5.6/argocd-linux-amd64 -o /usr/local/bin/argocd
-        chmod +x /usr/local/bin/argocd
-
-    # Step 4: Authenticate with ArgoCD
-    - name: Log in to ArgoCD
-      run: |
-        argocd login ${{ secrets.ARGOCD_SERVER }} \
-          --username ${{ secrets.ARGOCD_USERNAME }} \
-          --password ${{ secrets.ARGOCD_PASSWORD }} \
-          --insecure
-
-    # Step 5: Sync the Application
-    - name: Sync ArgoCD Application
-      run: |
-        argocd app sync todo-app-1 \
-          --server ${{ secrets.ARGOCD_SERVER }} \
-          --username ${{ secrets.ARGOCD_USERNAME }} \
-          --password ${{ secrets.ARGOCD_PASSWORD }}
-
-    # Step 6: Wait for Application to be Healthy
-    - name: Wait for Healthy Status
-      run: |
-        argocd app wait todo-app \
-          --server ${{ secrets.ARGOCD_SERVER }} \
-          --username ${{ secrets.ARGOCD_USERNAME }} \
-          --password ${{ secrets.ARGOCD_PASSWORD }}
+      # Step 2: Update Helm Chart with Existing Docker Image Tag
+      - name: Update Helm Chart values.yaml
+        run: |
+          cd helm
+          sed -i 's|APP_VERSION:.*|APP_VERSION: "latest"|' values.yaml # Replace "latest" with the desired tag if applicable
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add values.yaml
+          git commit -m "Update values.yaml with existing Docker image tag"
+          git push
